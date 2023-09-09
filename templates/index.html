@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Linting App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> <!-- Use Flask's url_for to reference the CSS file -->
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the Code Linting App</h1>
+        <p>Please log in to continue.</p>
+        <button id="loginButton"><a href="https://dev-alz530yb27kb08mr.us.auth0.com/authorize?audience=linter&response_type=token&client_id=osEQs54feXjurgPvMEy6q6KESrIHTjYd&redirect_uri=http://127.0.0.1:5000/projects" class="login-link">Log In</a></button>
+    </div>
+</body>
+</html>

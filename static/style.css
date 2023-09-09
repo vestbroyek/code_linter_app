@@ -1,0 +1,108 @@
+/* style.css (in the static folder) */
+
+/* Reset default styles */
+body, button, h1, p {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-color: #282c34;
+    color: #abb2bf;
+}
+
+.container {
+    text-align: center;
+    margin-top: 20vh;
+}
+
+h1 {
+    font-size: 2rem;
+    color: #61afef;
+    margin-bottom: 1rem;
+}
+
+p {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+button {
+    background-color: #61afef;
+    color: #282c34;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+button:hover {
+    background-color: #528bff;
+}
+
+a.login-link {
+    text-decoration: none;
+    color: #61afef;
+    transition: color 0.2s;
+}
+
+a.login-link:hover {
+    color: #528bff;
+}
+/* style.css (in the static folder) */
+
+/* Reset default styles */
+body, button, h1, p {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-color: #282c34;
+    color: #abb2bf;
+}
+
+.container {
+    text-align: center;
+    margin-top: 20vh;
+}
+
+h1 {
+    font-size: 2rem;
+    color: #c14d4d; /* Replace with specified color (#61afef) */
+    margin-bottom: 1rem;
+}
+
+p {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+button {
+    background-color: #d19a66; /* Replace with specified color (#d19a66 - bright orange) */
+    color: #282c34;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+button:hover {
+    background-color: #56b6c2; /* Replace with specified color (#56b6c2 - bright purple) */
+}
+
+a.login-link {
+    text-decoration: none;
+    color: black; /* Replace with specified color (#61afef) */
+    transition: color 0.2s;
+}
+
+a.login-link:hover {
+    color: #56b6c2; /* Replace with specified color (#56b6c2 - bright purple) */
+}
