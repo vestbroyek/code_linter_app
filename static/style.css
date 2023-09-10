@@ -106,3 +106,28 @@ a.login-link {
 a.login-link:hover {
     color: #56b6c2; /* Replace with specified color (#56b6c2 - bright purple) */
 }
+
+#sidebar {
+    width: 250px; /* Adjust the width as needed */
+    height: 100%; /* Set the height to match the viewport */
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-y: scroll; /* Enable vertical scrolling */
+    background-color: #6a696b; /* Set your preferred lighter background color */
+}
+
+#projectList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#projectList li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd; /* Add a separator line between items */
+}
+
+.hidden {
+    display: none;
+}
