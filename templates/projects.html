@@ -8,11 +8,36 @@
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to the Code Linting App</h1>
+        <h1>Welcome to the Code Linter!</h1>
         <h2>Projects:</h2>
         <ul id="projectList">
-            <!-- Project items will be dynamically added here -->
+            <!-- Use Jinja2 to loop through and render the projects -->
+            {% for project in projects %}
+                <li>
+                    <h3>{{ project.name }}</h3>
+                    <p>ID: {{ project.id }}</p>
+                    <p>Date Created: {{ project.date_created }}</p>
+                    <img src="{{ project.image_link }}" alt="{{ project.name }}" />
+                </li>
+            {% endfor %}
         </ul>
+
+        <!-- Add a form to create a new project -->
+        <h2>Create a New Project:</h2>
+        <form id="newProjectForm">
+            <label for="projectName">Name:</label>
+            <input type="text" id="projectName" name="name" required><br><br>
+        
+            <label for="projectImage">Image Link:</label>
+            <input type="text" id="projectImage" name="image_link"><br><br>
+        
+            <!-- Add a hidden input field for the timestamp -->
+            <input type="hidden" id="dateCreated" name="date_created">
+        
+            <button type="submit">Create Project</button>
+        </form>
+        
+        <!-- TODO -->
         <button id="logoutButton">Log Out</button>
     </div>
     <script>
@@ -39,15 +64,91 @@
                 const headers = setAuthorizationHeader(jwtToken);
                 try {
                     const response = await fetch('/projects', { method: 'GET', headers });
-                    // Handle the response here
+                    // Handle the response here and render projects
+                    const projectsData = await response.json();
+                    renderProjects(projectsData);
                 } catch (error) {
                     // Handle errors here
+                    console.error("Error fetching projects:", error);
                 }
             } else {
                 // Handle the case when the token is not found in the URL
                 console.error("JWT token not found in the URL.");
             }
         }
+
+        // Function to render a list of projects
+        function renderProjects(projects) {
+            const projectList = document.getElementById("projectList");
+
+            // Clear the current list
+            projectList.innerHTML = "";
+
+            // Iterate through the projects and add them to the list
+            projects.forEach((project) => {
+                const listItem = document.createElement("li");
+                listItem.innerHTML = `
+                    <h3>${project.name}</h3>
+                    <p>ID: ${project.id}</p>
+                    <p>Date Created: ${project.date_created}</p>
+                    <img src="${project.image_link}" alt="${project.name}" style="width: 50px; height: 50px;" />
+                `;
+                projectList.appendChild(listItem);
+            });
+        }
+
+        // Function to get the current timestamp in ISO 8601 format (e.g., "2023-09-09T12:34:56Z")
+        function getCurrentTimestamp() {
+            return new Date().toISOString();
+        }
+
+        // Event listener for the new project form submission
+        const newProjectForm = document.getElementById("newProjectForm");
+        newProjectForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            // Extract form data
+            const formData = new FormData(newProjectForm);
+
+            // Get the current timestamp
+            const currentTimestamp = getCurrentTimestamp();
+
+            // Add the current timestamp to the form data
+            formData.append("date_created", currentTimestamp);
+
+            // Construct the project object from form data
+            const projectData = {};
+            formData.forEach((value, key) => {
+                projectData[key] = value;
+            });
+
+            // Send a POST request to create the new project
+            const jwtToken = extractTokenFromURL();
+            if (jwtToken) {
+                const headers = {
+                    'Authorization': `Bearer ${jwtToken}`,
+                    'Content-Type': 'application/json'
+                };
+
+                console.log(headers)
+                console.log(JSON.stringify(projectData))
+                try {
+                    const response = await fetch('/projects', {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify(projectData), // Corrected the variable name
+                    });
+                    // Handle the response here (e.g., refresh the project list)
+                    fetchProjects();
+                } catch (error) {
+                    // Handle errors here
+                    console.error("Error creating a new project:", error);
+                }
+            } else {
+                // Handle the case when the token is not found in the URL
+                console.error("JWT token not found in the URL.");
+            }
+        });
 
         // Call the fetchProjects function to start the process
         fetchProjects();
