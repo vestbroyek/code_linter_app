@@ -9,22 +9,35 @@
 <body>
     <div class="container">
         <h1>Welcome to the Code Linter!</h1>
-        <h2>Projects:</h2>
+        <div id="sidebar">
         <ul id="projectList">
             <!-- Use Jinja2 to loop through and render the projects -->
             {% for project in projects %}
                 <li>
+                <a href="/projects/{{ project.id }}" class="project-link">
                     <h3>{{ project.name }}</h3>
+                </a>
                     <p>ID: {{ project.id }}</p>
                     <p>Date Created: {{ project.date_created }}</p>
                     <img src="{{ project.image_link }}" alt="{{ project.name }}" style="width: 100px; height: 100px;" />
                 </li>
             {% endfor %}
         </ul>
+        </div>
+
+        <div id="projectDetails">
+            <!-- Project details will be displayed here -->
+        </div>
+
+        <div id="projectSnippets">
+            <!-- Snippets will be displayed here when a project is clicked -->
+        </div>
+
+        <button id="addCodeButton">Add Code</button>
 
         <!-- Add a form to create a new project -->
-        <h2>Create a New Project:</h2>
         <form id="newProjectForm">
+            <h2>Create a New Project:</h2>
             <label for="projectName">Name:</label>
             <input type="text" id="projectName" name="name" required><br><br>
         
@@ -36,9 +49,21 @@
         
             <button type="submit">Create Project</button>
         </form>
+
+        <!-- Add snippets form-->
+        <div id="addCodeForm" class="hidden">
+            <h2>Add Code:</h2>
+            <form id="newCodeForm">
+                <label for="codeText">Code:</label>
+                <textarea id="codeText" name="code" required></textarea><br><br>
+                <input type="hidden" id="codeProjectId" name="project_id">
+                <input type="hidden" id="codeDateCreated" name="date_created">
+                <button type="submit">Submit</button>
+            </form>
+        </div>
         
         <!-- TODO -->
-        <button id="logoutButton">Log Out</button>
+        <!-- <button id="logoutButton">Log Out</button> -->
     </div>
     <script>
         // Function to extract the JWT token from the URL
@@ -148,6 +173,118 @@
                 // Handle the case when the token is not found in the URL
                 console.error("JWT token not found in the URL.");
             }
+        });
+
+        // JavaScript code to handle project link click event
+        document.addEventListener("DOMContentLoaded", function () {
+            const projectLinks = document.querySelectorAll(".project-link");
+            const projectDetailsContainer = document.getElementById("projectDetails");
+            const projectSnippetsContainer = document.getElementById("projectSnippets");
+
+            projectLinks.forEach((projectLink) => {
+                projectLink.addEventListener("click", function (e) {
+                    e.preventDefault(); // Prevent the default link behavior (navigation)
+
+                    // const projectId = this.getAttribute("data-project-id");
+                    const href = this.getAttribute("href");
+                    const projectId = href.split("/").pop(); 
+
+                    fetch(`/projects/${projectId}`)
+                        .then((response) => response.json())
+                        .then((data) => {
+                            // Access the project data
+                            const projectData = JSON.parse(data.project);
+
+                            // Display project details
+                            projectDetailsContainer.innerHTML = `
+                                <h2>${projectData.name}</h2>
+                            `;
+
+                            // Hide the "Create new project" form
+                            newProjectForm.classList.add("hidden");
+
+                            // Display snippets
+                            if (projectData.snippets.length > 0) {
+                                const snippetsList = document.createElement("ul");
+                                projectData.snippets.forEach((snippet) => {
+                                    const snippetItem = document.createElement("li");
+                                    snippetItem.innerHTML = `
+                                        <h3>${snippet.id}</h3>
+                                        <p>${snippet.date_created}</p>
+                                        <p>${snippet.code}</p>
+                                    `;
+                                    snippetsList.appendChild(snippetItem);
+                                });
+                                projectSnippetsContainer.innerHTML = "";
+                                projectSnippetsContainer.appendChild(snippetsList);
+                            } else {
+                                projectSnippetsContainer.innerHTML = "No snippets found for this project.";
+                            }
+
+                        })
+                        .catch((error) => {
+                            console.error("Error fetching project data:", error);
+                        });
+                });
+            });
+        });
+
+        // JavaScript code to handle "Add code" button click event
+        const addCodeButton = document.getElementById("addCodeButton");
+        const addCodeForm = document.getElementById("addCodeForm");
+        const newCodeForm = document.getElementById("newCodeForm");
+        const codeProjectIdField = document.getElementById("codeProjectId");
+        const codeDateCreatedField = document.getElementById("codeDateCreated");
+
+        addCodeButton.addEventListener("click", function () {
+            addCodeForm.classList.remove("hidden");
+        });
+
+        // Event listener to hide the form when submitted
+        newCodeForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            // Extract form data
+            const formData = new FormData(newCodeForm);
+
+            // Get the current timestamp
+            const currentTimestamp = getCurrentTimestamp();
+
+            // Add the current timestamp to the form data
+            formData.append("date_created", currentTimestamp);
+
+            // Set the project ID from the active project based on the clicked project link
+            const href = document.querySelector(".project-link").getAttribute("href");
+            const projectId = href.split("/").pop();
+            formData.append("project_id", projectId);
+
+            // Send a POST request to create the new code snippet
+            const jwtToken = extractTokenFromURL();
+            if (jwtToken) {
+                const headers = {
+                    'Authorization': `Bearer ${jwtToken}`,
+                    'Content-Type': 'application/json'
+                };
+
+                try {
+                    const response = await fetch(`/projects/${projectId}/snippets`, {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify(Object.fromEntries(formData)),
+                    });
+                    // Handle the response here (e.g., refresh the snippets list)
+                    // You can add code to refresh the snippets list when the snippet is added.
+                } catch (error) {
+                    // Handle errors here
+                    console.error("Error adding code snippet:", error);
+                }
+            } else {
+                // Handle the case when the token is not found in the URL
+                console.error("JWT token not found in the URL.");
+            }
+
+            // Hide the form after submitting
+            addCodeForm.classList.add("hidden");
         });
 
         // Call the fetchProjects function to start the process
