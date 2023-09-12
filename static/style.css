@@ -1,15 +1,29 @@
-/* style.css (in the static folder) */
-
-/* Reset default styles */
-body, button, h1, p {
+body, button, h1, p, a {
     margin: 0;
     padding: 0;
-    font-family: 'Arial', sans-serif;
+    font-family: Helvetica;
+    font-size: 12px;
+}
+
+ul {
+    font-family: Helvetica;
+    font-size: 10px;
+    padding: 15px;
+    border-radius: 20px;
+    -moz-border-radius: 20px;
+    -webkit-border-radius: 20px;
+    background-color: #161b22;
+}
+li {
+    font-family: Helvetica;
+    margin: 10px;
+    margin-left: 25px;
+    background-color: #161b22;
 }
 
 body {
-    background-color: #282c34;
-    color: #abb2bf;
+    background-color: #0d1117; /* Dark background similar to GitHub */
+    color: #c9d1d9; /* Text color */
 }
 
 .container {
@@ -19,7 +33,7 @@ body {
 
 h1 {
     font-size: 2rem;
-    color: #61afef;
+    color: #61afef; /* Blue color similar to GitHub */
     margin-bottom: 1rem;
 }
 
@@ -29,7 +43,7 @@ p {
 }
 
 button {
-    background-color: #61afef;
+    background-color: #d19a66; /* Bright orange similar to GitHub */
     color: #282c34;
     border: none;
     border-radius: 4px;
@@ -40,71 +54,17 @@ button {
 }
 
 button:hover {
-    background-color: #528bff;
+    background-color: #56b6c2; /* Bright purple similar to GitHub */
 }
 
 a.login-link {
     text-decoration: none;
-    color: #61afef;
+    color: #0d1117; /* Blue color similar to GitHub */
     transition: color 0.2s;
 }
 
 a.login-link:hover {
-    color: #528bff;
-}
-/* style.css (in the static folder) */
-
-/* Reset default styles */
-body, button, h1, p {
-    margin: 0;
-    padding: 0;
-    font-family: 'Arial', sans-serif;
-}
-
-body {
-    background-color: #282c34;
-    color: #abb2bf;
-}
-
-.container {
-    text-align: center;
-    margin-top: 20vh;
-}
-
-h1 {
-    font-size: 2rem;
-    color: #c14d4d; /* Replace with specified color (#61afef) */
-    margin-bottom: 1rem;
-}
-
-p {
-    font-size: 1rem;
-    margin-bottom: 1rem;
-}
-
-button {
-    background-color: #d19a66; /* Replace with specified color (#d19a66 - bright orange) */
-    color: #282c34;
-    border: none;
-    border-radius: 4px;
-    padding: 10px 20px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-button:hover {
-    background-color: #56b6c2; /* Replace with specified color (#56b6c2 - bright purple) */
-}
-
-a.login-link {
-    text-decoration: none;
-    color: black; /* Replace with specified color (#61afef) */
-    transition: color 0.2s;
-}
-
-a.login-link:hover {
-    color: #56b6c2; /* Replace with specified color (#56b6c2 - bright purple) */
+    color: #56b6c2; /* Bright purple similar to GitHub */
 }
 
 #sidebar {
@@ -114,20 +74,134 @@ a.login-link:hover {
     top: 0;
     left: 0;
     overflow-y: scroll; /* Enable vertical scrolling */
-    background-color: #6a696b; /* Set your preferred lighter background color */
+    background-color: #161b22; /* Set your preferred lighter background color */
 }
 
 #projectList {
     list-style: none;
     padding: 0;
     margin: 0;
+    background-color: #161b22;
 }
 
 #projectList li {
     padding: 10px;
-    border-bottom: 1px solid #ddd; /* Add a separator line between items */
+    border-bottom: 1px solid #30363d; /* Slightly darker border */
 }
 
 .hidden {
     display: none;
+}
+
+#projectSnippets {
+    background-color: #0d1117; /* Slightly darker background similar to GitHub */
+    font-size: 14px;
+}
+
+.snippet-list {
+    background-color: #0d1117;
+    display: flex;
+    flex-direction: column; /* Arrange snippets vertically */
+    align-items: center; /* Center horizontally */
+    padding: 50px 0 10px 0;
+}
+
+.snippet-tile {
+    background-color: #0d1117; /* Dark background similar to GitHub */
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 10px;
+    margin: 10px 0;
+    display: flex;
+    flex-direction: column; /* Arrange header and content vertically */
+    justify-content: center; /* Center vertically */
+    align-items: center; /* Center horizontally */
+    text-align: left; /* Center text within */
+    width: 60%; /* Set the desired width, you can adjust the percentage */
+}
+
+.snippet-tile .snippet-header {
+    background-color: #1b1f23; /* Dark grey */
+    color: #c9d1d9; /* Text color */
+    padding: 5px 10px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    font-size: 14px;
+    text-align: right;
+    display: flex;
+    justify-content: flex-end; /* Right-align the date */
+    width: 98%;
+}
+
+.snippet-tile .snippet-content {
+    background-color: #292f37;
+    text-align: left;
+    margin-top: 1px; 
+    width: 100%;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    padding-left: 5px;
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
+    -webkit-hyphens: none;
+    -moz-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none
+}
+
+/* .snippet-tile pre code {
+    background-color: #292f37;
+    border-radius: 6px;
+    padding: 10px;
+    overflow-x: auto;
+    line-height: 30px;
+    font-size: 14px;
+    color: #c9d1d9;
+    margin: 0 auto; 
+    width: 95%;
+} */
+
+.snippet-tile {
+    background-color: #0d1117; /* Dark background similar to GitHub */
+    border-radius: 6px;
+    padding: 5px;
+    overflow-x: auto;
+    font-size: 14px;
+    color: #c9d1d9; /* Code text color */
+    margin: 0 auto; /* Center the code block horizontally */
+}
+
+.popup-content {
+    background-color: #0d1117; /* Dark background similar to GitHub */
+    color: #c9d1d9; /* Text color */
+    padding: 20px;
+}
+
+.popup-textarea {
+    width: 90%;
+    height: 600px; /* Adjust the height as needed */
+    background-color: #0d1117; /* Dark background similar to GitHub */
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 10px;
+    overflow-x: auto;
+    font-size: 14px;
+    color: #c9d1d9; /* Code text color */
+}
+
+.popup-submit-button {
+    background-color: #d19a66; /* Bright orange similar to GitHub */
+    color: #282c34;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    margin-top: 20px; /* Add margin to separate it from the textarea */
+}
+
+.popup-submit-button:hover {
+    background-color: #56b6c2; /* Bright purple similar to GitHub */
 }
