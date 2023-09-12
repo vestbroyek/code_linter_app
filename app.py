@@ -19,9 +19,6 @@ def get_projects():
 
     formatted_projects = [project.long() for project in projects]
 
-    # return jsonify({
-    #     "projects": formatted_projects
-    # }), 200
     return render_template("projects.html", projects=formatted_projects)
 
 @requires_permissions("get:projects")
