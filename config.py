@@ -1,4 +1,5 @@
 from authlib.integrations.flask_client import OAuth
+from datetime import datetime
 from dotenv import find_dotenv, load_dotenv
 from flask import Flask, redirect, render_template, url_for
 from flask_cors import CORS
@@ -35,6 +36,14 @@ oauth.register(
     },
     server_metadata_url=f'https://{env.get("AUTH0_DOMAIN")}/.well-known/openid-configuration'
 )
+
+# Misc - date format
+def format_date(value):
+    date_created = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%f')
+    return date_created.strftime('%A, %d %B %Y')
+
+# Add the custom filter to Jinja2 environment
+app.jinja_env.filters['format_date'] = format_date
 
 # Auth0 Config
 AUTH0_DOMAIN = "dev-alz530yb27kb08mr.us.auth0.com"
