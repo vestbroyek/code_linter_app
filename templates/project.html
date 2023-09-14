@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='prism.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Project snippets</h2>
+        <ul>
+            {% for snippet in snippets %}
+                <li>
+                    <div class="snippet-header">Added: {{ snippet.date_created | format_date }}</div>
+                    <div class="snippet-content">
+                        <pre class="language-python">
+                            <code class="language-python">{{ snippet.code }}</code>
+                        </pre>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+        <button id="addCodeButton">Add Code</button>
+        <div id="addCodeForm" class="hidden">
+            <h2>Add Code:</h2>
+            <form id="newCodeForm">
+                <label for="codeText">Code:</label>
+                <textarea id="codeText" name="code" required></textarea><br><br>
+                <input type="hidden" id="codeDateCreated" name="date_created">
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        // Function to extract the JWT token from the URL
+        function extractTokenFromURL() {
+        const hash = window.location.hash.substring(1); // Remove the '#' character
+        const params = new URLSearchParams(hash);
+        return params.get("access_token");
+        }
+        // Function to show the "Add Code" form
+        const addCodeButton = document.getElementById("addCodeButton");
+        const addCodeForm = document.getElementById("addCodeForm");
+
+        addCodeButton.addEventListener("click", function () {
+            addCodeForm.classList.remove("hidden");
+        });
+
+        // Event listener for submitting the "Add Code" form
+        const newCodeForm = document.getElementById("newCodeForm");
+        const codeDateCreatedField = document.getElementById("codeDateCreated");
+
+        newCodeForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            // Extract form data
+            const formData = new FormData(newCodeForm);
+            console.log(formData)
+
+            // Extract project ID
+            const currentURL = window.location.href;
+            const projectId = currentURL.split("/").pop().split("#")[0];
+
+            // Get the current timestamp
+            const currentTimestamp = new Date().toISOString();
+            formData.append("date_created", currentTimestamp);
+
+            // Send a POST request to create the new code snippet
+            const jwtToken = extractTokenFromURL(); // You can define the extractTokenFromURL function
+            if (jwtToken) {
+                const headers = {
+                    'Authorization': `Bearer ${jwtToken}`,
+                    'Content-Type': 'application/json'
+                };
+
+                try {
+                    const response = await fetch(`/projects/${projectId}/snippets`, {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify(Object.fromEntries(formData)),
+                    });
+                    // Handle the response here (e.g., refresh the snippets list)
+                    // You can add code to refresh the snippets list when the snippet is added.
+                } catch (error) {
+                    // Handle errors here
+                    console.error("Error adding code snippet:", error);
+                }
+            } else {
+                // Handle the case when the token is not found in the URL
+                console.error("JWT token not found in the URL.");
+            }
+
+            addCodeForm.classList.add("hidden");
+        });
+    </script>
+    <script src="{{ url_for('static', filename='prism.js') }}"></script>
+    <script src="{{ url_for('static', filename='prism-python.min.js') }}"></script>
+</body>
