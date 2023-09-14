@@ -29,10 +29,12 @@ def get_project(project_id):
     if not project:
         abort(404)
 
-    return jsonify({
-        "success": True,
-        "project": json.dumps(project.long())
-    }), 200
+    return render_template('project.html', project=json.dumps(project.long()), snippets=[snippet.long() for snippet in project.snippets])
+
+    # return jsonify({
+    #     "success": True,
+    #     "project": json.dumps(project.long())
+    # }), 200
 
 @requires_permissions("post:projects")
 @app.route("/projects", methods=["POST"])
@@ -66,14 +68,14 @@ def post_snippet(project_id):
     data = request.json
 
     try:
-        code, date_created= data["code"], data["date_created"]
+        code, date_created = data["code"], data["date_created"]
 
     except Exception as e:
         print(e)
         abort(400)
 
     try:
-        new_snippet=Snippet(code=code, date_created=date_created, project_id=project_id)
+        new_snippet=Snippet(code="\n" + code, date_created=date_created, project_id=project_id)
         new_snippet.insert()
 
     except Exception as e:
