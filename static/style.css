@@ -12,18 +12,24 @@ ul {
     border-radius: 20px;
     -moz-border-radius: 20px;
     -webkit-border-radius: 20px;
-    background-color: #161b22;
+    display: inline-block;
 }
 li {
     font-family: Helvetica;
     margin: 10px;
     margin-left: 25px;
-    background-color: #161b22;
+    background-color: #1e1e1e;
+    text-align: right;
+    font-size: 14px;
+    list-style: none;
+    border: 3px solid #30363d;
+    border-radius: 6px;
+    width: 100%;
 }
 
 body {
-    background-color: #0d1117; /* Dark background similar to GitHub */
-    color: #c9d1d9; /* Text color */
+    background-color: #1e1e1e; /* Dark background similar to GitHub */
+    color: #d4d4d4; /* Text color */
 }
 
 .container {
@@ -74,14 +80,14 @@ a.login-link:hover {
     top: 0;
     left: 0;
     overflow-y: scroll; /* Enable vertical scrolling */
-    background-color: #161b22; /* Set your preferred lighter background color */
+    background-color: #1e1e1e; /* Set your preferred lighter background color */
 }
 
 #projectList {
     list-style: none;
     padding: 0;
     margin: 0;
-    background-color: #161b22;
+    background-color: #1e1e1e;
 }
 
 #projectList li {
@@ -107,7 +113,7 @@ a.login-link:hover {
 }
 
 .snippet-tile {
-    background-color: #0d1117; /* Dark background similar to GitHub */
+    background-color: #30363d; /* Dark background similar to GitHub */
     border: 1px solid #30363d;
     border-radius: 6px;
     padding: 10px;
@@ -126,7 +132,7 @@ a.login-link:hover {
     padding: 5px 10px;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
-    font-size: 14px;
+    font-size: 16px;
     text-align: right;
     display: flex;
     justify-content: flex-end; /* Right-align the date */
@@ -134,7 +140,7 @@ a.login-link:hover {
 }
 
 .snippet-tile .snippet-content {
-    background-color: #292f37;
+    background-color: #30363d;
     text-align: left;
     margin-top: 1px; 
     width: 100%;
@@ -150,20 +156,8 @@ a.login-link:hover {
     hyphens: none
 }
 
-/* .snippet-tile pre code {
-    background-color: #292f37;
-    border-radius: 6px;
-    padding: 10px;
-    overflow-x: auto;
-    line-height: 30px;
-    font-size: 14px;
-    color: #c9d1d9;
-    margin: 0 auto; 
-    width: 95%;
-} */
-
 .snippet-tile {
-    background-color: #0d1117; /* Dark background similar to GitHub */
+    background-color: #30363d; /* Dark background similar to GitHub */
     border-radius: 6px;
     padding: 5px;
     overflow-x: auto;
