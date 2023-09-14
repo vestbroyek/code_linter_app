@@ -14,7 +14,7 @@
                 <!-- Use Jinja2 to loop through and render the projects -->
                 {% for project in projects %}
                     <li>
-                        <a href="/projects/{{ project.id }}" class="project-link" style="color: #c9d1d9;">
+                        <a href="/projects/{{ project.id }}" class="project-link" id="projectLink_{{ project.id }}" style="color: #c9d1d9;">
                             <h3>{{ project.name }}</h3>
                         </a>
                         <p>ID: {{ project.id }}</p>
@@ -74,6 +74,18 @@
             const params = new URLSearchParams(hash);
             return params.get("access_token");
         }
+
+        const accessToken = extractTokenFromURL('access_token');
+
+        // Update the href attributes of project links with the access_token
+        const projectLinks = document.querySelectorAll('.project-link');
+        projectLinks.forEach((link) => {
+            const projectId = link.getAttribute('id').split('_')[1]; // Extract project ID
+            if (accessToken) {
+                const originalHref = link.getAttribute('href');
+                link.setAttribute('href', `${originalHref}#access_token=${accessToken}`);
+            }
+        });
 
         // Function to set the JWT token in the Authorization header
         function setAuthorizationHeader(token) {
@@ -192,57 +204,14 @@
         // JavaScript code to handle project link click event
         document.addEventListener("DOMContentLoaded", function () {
             const projectLinks = document.querySelectorAll(".project-link");
-            const projectDetailsContainer = document.getElementById("projectDetails");
-            const projectSnippetsContainer = document.getElementById("projectSnippets");
 
             projectLinks.forEach((projectLink) => {
                 projectLink.addEventListener("click", function (e) {
                     e.preventDefault(); // Prevent the default link behavior (navigation)
 
                     const href = this.getAttribute("href");
-                    const projectId = href.split("/").pop();
+                    window.location.href = href; // Redirect to the project page
 
-                    fetch(`/projects/${projectId}`)
-                        .then((response) => response.json())
-                        .then((data) => {
-                            // Access the project data
-                            const projectData = JSON.parse(data.project);
-
-                            // Display project details
-                            projectDetailsContainer.innerHTML = `
-                                <h2>${projectData.name}</h2>
-                            `;
-
-                            // Hide the "Create new project" form
-                            newProjectForm.classList.add("hidden");
-
-                            // Display snippets
-                            if (projectData.snippets.length > 0) {
-                                addCodeForm.classList.add("hidden");
-                                const snippetsList = document.createElement("div");
-                                snippetsList.classList.add("snippet-list");
-                                projectData.snippets.forEach((snippet) => {
-                                    const snippetTile = document.createElement("div");
-                                    snippetTile.classList.add("snippet-tile");
-                                    snippetTile.innerHTML = `
-                                        <div class="snippet-header">${formatDate(snippet.date_created)}</div>
-                                        <div class="snippet-content">
-                                            <pre class="language-python">
-                                                <code class="language-python">${snippet.code}</code>
-                                            </pre>
-                                        </div>
-                                    `;
-                                    snippetsList.appendChild(snippetTile);
-                                });
-                                projectSnippetsContainer.innerHTML = "";
-                                projectSnippetsContainer.appendChild(snippetsList);
-                            } else {
-                                projectSnippetsContainer.innerHTML = "No snippets found for this project.";
-                            }
-                        })
-                        .catch((error) => {
-                            console.error("Error fetching project data:", error);
-                        });
                 });
             });
         });
