@@ -34,7 +34,7 @@ body {
 
 .container {
     text-align: center;
-    margin-top: 20vh;
+    margin-top: 2vh;
 }
 
 h1 {
@@ -57,6 +57,7 @@ button {
     font-size: 1rem;
     cursor: pointer;
     transition: background-color 0.2s, color 0.2s;
+    margin-top: 20px;
 }
 
 button:hover {
@@ -109,7 +110,7 @@ a.login-link:hover {
     display: flex;
     flex-direction: column; /* Arrange snippets vertically */
     align-items: center; /* Center horizontally */
-    padding: 50px 0 10px 0;
+    padding: 50px 0 5px 0;
 }
 
 .snippet-tile {

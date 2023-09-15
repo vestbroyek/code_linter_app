@@ -10,6 +10,18 @@
 <body>
     <div class="container">
         <h2>Project snippets</h2>
+        <button id="addCodeButton">Add Code</button>
+        <div id="addCodeForm" class="hidden">
+            <h2>Add Code:</h2>
+            <form id="newCodeForm">
+                <label for="codeText">Code:</label>
+                <textarea id="codeText" name="code" required></textarea><br><br>
+                <input type="hidden" id="codeDateCreated" name="date_created">
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+    <div class = "container">
         <ul>
             {% for snippet in snippets %}
                 <li>
@@ -22,16 +34,6 @@
                 </li>
             {% endfor %}
         </ul>
-        <button id="addCodeButton">Add Code</button>
-        <div id="addCodeForm" class="hidden">
-            <h2>Add Code:</h2>
-            <form id="newCodeForm">
-                <label for="codeText">Code:</label>
-                <textarea id="codeText" name="code" required></textarea><br><br>
-                <input type="hidden" id="codeDateCreated" name="date_created">
-                <button type="submit">Submit</button>
-            </form>
-        </div>
     </div>
     <script>
         // Function to extract the JWT token from the URL
