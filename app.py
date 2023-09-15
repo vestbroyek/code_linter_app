@@ -1,4 +1,5 @@
 from auth import requires_permissions
+from backend.complexity import calculate_metrics
 from config import app, db
 from flask import abort, jsonify, render_template, request, redirect
 from flask_migrate import Migrate
@@ -85,6 +86,23 @@ def post_snippet(project_id):
 
     return jsonify({
         "success": True
+    }), 200
+
+@requires_permissions("analyse:snippets")
+@app.route("/analyse/<int:snippet_id>")
+def analyse_snippet(snippet_id):
+    # Try getting snippet
+    snippet = Snippet.query.filter(Snippet.id == snippet).one_or_none()
+    
+    if not snippet:
+        abort(404)
+
+    analysis_result = calculate_metrics(snippet.code)
+
+    return jsonify({
+        "success": True,
+        "results": json.dumps(analysis_result),
+        "snippet_id": snippet_id
     }), 200
 
 if __name__ == "__main__":
