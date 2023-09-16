@@ -17,7 +17,6 @@
                         <a href="/projects/{{ project.id }}" class="project-link" id="projectLink_{{ project.id }}" style="color: #c9d1d9;">
                             <h3>{{ project.name }}</h3>
                         </a>
-                        <p>ID: {{ project.id }}</p>
                         <p>Date Created: {{ project.date_created | format_date }}</p>
                         <img src="{{ project.image_link }}" alt="{{ project.name }}" style="width: 100px; height: 100px;" />
                     </li>
@@ -48,7 +47,7 @@
             <button type="submit">Create Project</button>
         </form>
 
-        <button id="addCodeButton">Add Code</button>
+        <button id="addCodeButton" class="hidden">Add Code</button>
 
         <!-- Add snippets form-->
         <div id="addCodeForm" class="hidden">
@@ -189,8 +188,14 @@
                         body: JSON.stringify(projectData), // Corrected the variable name
                     });
                     // Handle the response here (e.g., refresh the project list)
-                    fetchProjects();
-                    addCodeButton.classList.add("hidden")
+                    if (response.ok) {
+                        // Clear the form and hide it
+                        newProjectForm.reset();
+                        fetchProjects();
+                        addCodeButton.classList.add("hidden")
+                    }
+                    
+
                 } catch (error) {
                     // Handle errors here
                     console.error("Error creating a new project:", error);
@@ -211,6 +216,9 @@
 
                     const href = this.getAttribute("href");
                     window.location.href = href; // Redirect to the project page
+
+                    // Show the "Add Code" button when a project link is clicked
+                    addCodeButton.classList.remove("hidden");
 
                 });
             });

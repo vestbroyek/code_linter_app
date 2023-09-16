@@ -8,9 +8,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='prism.css') }}">
 </head>
 <body>
+    <a href="/projects" class="back-link">←</a>
     <div class="container">
-        <h2>Project snippets</h2>
-        <button id="addCodeButton">Add Code</button>
+        <h2>{{ project.name }} snippets</h2>
+        <button id="addCodeButton">Add code</button>
         <div id="addCodeForm" class="hidden">
             <h2>Add Code:</h2>
             <form id="newCodeForm">
@@ -20,57 +21,238 @@
                 <button type="submit">Submit</button>
             </form>
         </div>
+        <button id="updateProjectButton">Update</button>
+        <div id="updateProjectForm" class="hidden">
+            <h2>Update project</h2>
+            <form id="projectForm">
+                <label for="projectName">Name:</label>
+                <textarea id="projectName" name="name"></textarea><br><br>
+                <label for="projectImage">Image link:</label>
+                <textarea id="projectImage" name="image_link"></textarea><br><br> 
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+        <button class="delete-project-button" data-project-id="{{ project.id }}">
+            <span class="sr-only">Delete</span>
+        </button>
     </div>
     <div class = "container">
         <ul>
             {% for snippet in snippets %}
                 <li>
                     <div class="snippet-header">Added: {{ snippet.date_created | format_date }}</div>
+                    <button class="analyze-button" data-snippet-id="{{ snippet.id }}">Analyse</button>
+                    <button class="delete-button" data-snippet-id="{{ snippet.id }}">Delete</button> 
                     <div class="snippet-content">
                         <pre class="language-python">
                             <code class="language-python">{{ snippet.code }}</code>
                         </pre>
+                    </div>
+                    <div class="maintainability-box">
+                        The maintainability index of this snippet is <span class="maintainability-index"></span>
                     </div>
                 </li>
             {% endfor %}
         </ul>
     </div>
     <script>
-        // Function to extract the JWT token from the URL
-        function extractTokenFromURL() {
-        const hash = window.location.hash.substring(1); // Remove the '#' character
-        const params = new URLSearchParams(hash);
-        return params.get("access_token");
+    // Function to extract the JWT token from the URL
+    function extractTokenFromURL() {
+    const hash = window.location.hash.substring(1); // Remove the '#' character
+    const params = new URLSearchParams(hash);
+    return params.get("access_token");
+    }
+    // Function to show the "Add Code" form
+    const addCodeButton = document.getElementById("addCodeButton");
+    const addCodeForm = document.getElementById("addCodeForm");
+
+    addCodeButton.addEventListener("click", function () {
+        addCodeForm.classList.remove("hidden");
+    });
+
+    // Event listener for submitting the "Add Code" form
+    const newCodeForm = document.getElementById("newCodeForm");
+    const codeDateCreatedField = document.getElementById("codeDateCreated");
+
+    newCodeForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        // Extract form data
+        const formData = new FormData(newCodeForm);
+        console.log(formData)
+
+        // Extract project ID
+        const currentURL = window.location.href;
+        const projectId = currentURL.split("/").pop().split("#")[0];
+
+        // Get the current timestamp
+        const currentTimestamp = new Date().toISOString();
+        formData.append("date_created", currentTimestamp);
+
+        // Send a POST request to create the new code snippet
+        const jwtToken = extractTokenFromURL(); // You can define the extractTokenFromURL function
+        if (jwtToken) {
+            const headers = {
+                'Authorization': `Bearer ${jwtToken}`,
+                'Content-Type': 'application/json'
+            };
+
+            try {
+                const response = await fetch(`/projects/${projectId}/snippets`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(Object.fromEntries(formData)),
+                });
+                // Handle the response here (e.g., refresh the snippets list)
+                // You can add code to refresh the snippets list when the snippet is added.
+            } catch (error) {
+                // Handle errors here
+                console.error("Error adding code snippet:", error);
+            }
+        } else {
+            // Handle the case when the token is not found in the URL
+            console.error("JWT token not found in the URL.");
         }
-        // Function to show the "Add Code" form
-        const addCodeButton = document.getElementById("addCodeButton");
-        const addCodeForm = document.getElementById("addCodeForm");
 
-        addCodeButton.addEventListener("click", function () {
-            addCodeForm.classList.remove("hidden");
+        addCodeForm.classList.add("hidden");
+
+    });
+    
+    // Listener to handle the "Analyse" button click
+    const analyzeButtons = document.querySelectorAll(".analyze-button");
+
+    analyzeButtons.forEach(button => {
+        button.addEventListener("click", async () => {
+            const snippetId = button.getAttribute("data-snippet-id");
+            const jwtToken = extractTokenFromURL();
+
+            if (jwtToken) {
+                const headers = {
+                    'Authorization': `Bearer ${jwtToken}`
+                };
+
+                try {
+                    const response = await fetch(`/analyse/${snippetId}`, {
+                        method: 'GET',
+                        headers,
+                    });
+
+                    if (response.ok) {
+                        // Handle the response here (e.g., display analysis results)
+                        const analysisResult = await response.json();
+                        const snippetContainer = button.closest("li");
+                        const maintainabilityBox = snippetContainer.querySelector(".maintainability-box");
+                        const maintainabilityIndex = analysisResult.results.MaintainabilityIndex;
+                        const maintainabilityIndexBox = maintainabilityBox.querySelector(".maintainability-index");
+                        maintainabilityIndexBox.textContent = maintainabilityIndex.toFixed(2);
+                    } else {
+                        console.error("Error analyzing snippet:", response.status);
+                    }
+                } catch (error) {
+                    // Handle errors here
+                    console.error("Error analyzing snippet:", error);
+                }
+            } else {
+                // Handle the case when the token is not found in the URL
+                console.error("JWT token not found in the URL.");
+            }
         });
+    });
 
-        // Event listener for submitting the "Add Code" form
-        const newCodeForm = document.getElementById("newCodeForm");
-        const codeDateCreatedField = document.getElementById("codeDateCreated");
+    // Listener to handle the "Delete" snippet button click
+    const deleteButtons = document.querySelectorAll(".delete-button");
 
-        newCodeForm.addEventListener("submit", async (e) => {
-            e.preventDefault();
+    deleteButtons.forEach(button => {
+        button.addEventListener("click", async () => {
+            const snippetId = button.getAttribute("data-snippet-id");
+            const jwtToken = extractTokenFromURL();
 
-            // Extract form data
-            const formData = new FormData(newCodeForm);
-            console.log(formData)
+            if (jwtToken) {
+                const headers = {
+                    'Authorization': `Bearer ${jwtToken}`
+                };
 
-            // Extract project ID
-            const currentURL = window.location.href;
-            const projectId = currentURL.split("/").pop().split("#")[0];
+                try {
+                    const response = await fetch(`/projects/${snippetId}`, {
+                        method: 'DELETE',
+                        headers,
+                    });
 
-            // Get the current timestamp
-            const currentTimestamp = new Date().toISOString();
-            formData.append("date_created", currentTimestamp);
+                    if (response.ok) {
+                        // Remove the deleted snippet from the UI
+                        const snippetContainer = button.closest("li");
+                        snippetContainer.remove();
+                    } else {
+                        console.error("Error deleting snippet:", response.status);
+                    }
+                } catch (error) {
+                    // Handle errors here
+                    console.error("Error deleting snippet:", error);
+                }
+            } else {
+                // Handle the case when the token is not found in the URL
+                console.error("JWT token not found in the URL.");
+            }
+        });
+    });
+    
+    // Function to show the "Update project" form
+    const updateProjectButton = document.getElementById("updateProjectButton");
+    const updateProjectForm = document.getElementById("updateProjectForm");
+    const projectFormData = document.getElementById("projectForm")
 
-            // Send a POST request to create the new code snippet
-            const jwtToken = extractTokenFromURL(); // You can define the extractTokenFromURL function
+    updateProjectButton.addEventListener("click", function () {
+        updateProjectForm.classList.remove("hidden");
+    });    
+    
+    // Add event listener for updating project data
+    updateProjectForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        // Extract form data
+        const formData = new FormData(projectFormData);
+
+        // Extract project ID
+        const currentURL = window.location.href;
+        const projectId = currentURL.split("/").pop().split("#")[0];
+
+        // Send a POST request to create the new code snippet
+        const jwtToken = extractTokenFromURL(); // You can define the extractTokenFromURL function
+        if (jwtToken) {
+            const headers = {
+                'Authorization': `Bearer ${jwtToken}`,
+                'Content-Type': 'application/json'
+            };
+
+            try {
+                const response = await fetch(`/projects/${projectId}`, {
+                    method: 'PATCH',
+                    headers,
+                    body: JSON.stringify(Object.fromEntries(formData)),
+                });
+                // Handle the response here (e.g., refresh the snippets list)
+                // You can add code to refresh the snippets list when the snippet is added.
+            } catch (error) {
+                // Handle errors here
+                console.error("Error adding code snippet:", error);
+            }
+        } else {
+            // Handle the case when the token is not found in the URL
+            console.error("JWT token not found in the URL.");
+        }
+
+        addCodeForm.classList.add("hidden");
+
+    });
+
+    // Listener to handle project deletion
+    const deleteProjectButtons = document.querySelectorAll(".delete-project-button");
+
+    deleteProjectButtons.forEach(button => {
+        button.addEventListener("click", async () => {
+            const projectId = button.getAttribute("data-project-id");
+            const jwtToken = extractTokenFromURL();
+
             if (jwtToken) {
                 const headers = {
                     'Authorization': `Bearer ${jwtToken}`,
@@ -78,24 +260,22 @@
                 };
 
                 try {
-                    const response = await fetch(`/projects/${projectId}/snippets`, {
-                        method: 'POST',
+                    const response = await fetch(`/projects/${projectId}`, {
+                        method: 'DELETE',
                         headers,
-                        body: JSON.stringify(Object.fromEntries(formData)),
                     });
-                    // Handle the response here (e.g., refresh the snippets list)
-                    // You can add code to refresh the snippets list when the snippet is added.
+
                 } catch (error) {
                     // Handle errors here
-                    console.error("Error adding code snippet:", error);
+                    console.error("Error deleting project:", error);
                 }
             } else {
                 // Handle the case when the token is not found in the URL
                 console.error("JWT token not found in the URL.");
             }
-
-            addCodeForm.classList.add("hidden");
         });
+    });
+
     </script>
     <script src="{{ url_for('static', filename='prism.js') }}"></script>
     <script src="{{ url_for('static', filename='prism-python.min.js') }}"></script>
