@@ -1,7 +1,7 @@
 from auth import requires_permissions
 from backend.complexity import calculate_metrics
 from config import app, db
-from flask import abort, jsonify, render_template, request, redirect
+from flask import abort, jsonify, render_template, request, redirect, url_for
 from flask_migrate import Migrate
 import json
 from models import Project, Snippet
@@ -30,12 +30,7 @@ def get_project(project_id):
     if not project:
         abort(404)
 
-    return render_template('project.html', project=json.dumps(project.long()), snippets=[snippet.long() for snippet in project.snippets])
-
-    # return jsonify({
-    #     "success": True,
-    #     "project": json.dumps(project.long())
-    # }), 200
+    return render_template('project.html', project=project.long(), snippets=[snippet.long() for snippet in project.snippets])
 
 @requires_permissions("post:projects")
 @app.route("/projects", methods=["POST"])
@@ -92,7 +87,7 @@ def post_snippet(project_id):
 @app.route("/analyse/<int:snippet_id>")
 def analyse_snippet(snippet_id):
     # Try getting snippet
-    snippet = Snippet.query.filter(Snippet.id == snippet).one_or_none()
+    snippet = Snippet.query.filter(Snippet.id == snippet_id).one_or_none()
     
     if not snippet:
         abort(404)
@@ -101,9 +96,95 @@ def analyse_snippet(snippet_id):
 
     return jsonify({
         "success": True,
-        "results": json.dumps(analysis_result),
+        "results": json.loads(analysis_result),
         "snippet_id": snippet_id
     }), 200
+
+@requires_permissions("patch:projects")
+@app.route("/projects/<int:project_id>", methods=["PATCH"])
+def patch_project(project_id):
+    # Try getting project
+    project = Project.query.filter(Project.id == project_id).one_or_none()
+    
+    if not project:
+        abort(404)
+
+    data = request.get_json()
+
+    if "name" in data.keys():
+        project.name = data["name"]
+    if "image_link" in data.keys():
+        project.image_link = data["image_link"]
+
+    try:
+        project.insert()
+        return jsonify({
+            "success": True,
+            "project": project.long()
+        }), 200
+    except Exception as e:
+        abort(422)
+
+@requires_permissions("patch:snippets")
+@app.route("/projects/<int:snippet_id>", methods=["PATCH"])
+def patch_snippet(snippet_id):
+    # Try getting snippet
+    snippet = Snippet.query.filter(Snippet.id == snippet_id).one_or_none()
+    
+    if not snippet:
+        abort(404)
+
+    data = request.get_json()
+
+    try:
+        code = data["code"]
+        snippet.code = code
+    except Exception as e:
+        abort(400)
+
+    try:
+        snippet.insert()
+        return jsonify({
+            "success": True,
+            "snippet": snippet.long()
+        }), 200
+    except Exception as e:
+        abort(422)
+
+    
+@requires_permissions("delete:projects")
+@app.route("/projects/<int:project_id>", methods=["DELETE"])
+def delete_project(project_id):
+    # Try finding snippet
+    project = Project.query.filter(Project.id == project_id).one_or_none()
+    
+    if not project:
+        abort(404)
+
+    try:
+        project.delete()
+        return jsonify({
+            "success": True,
+            "snippet_id": project.id
+        }), 200
+    except:
+        abort(500)
+
+@requires_permissions("delete:snippets")
+@app.route("/projects/<int:snippet_id>", methods=["DELETE"])
+def delete_snippet(snippet_id):
+    # Try finding snippet
+    snippet = Snippet.query.filter(Snippet.id == snippet_id).one_or_none()
+    
+    if not snippet:
+        abort(404)
+
+    try:
+        snippet.delete()
+        return redirect(url_for("get_projects"), 302)
+    except:
+        abort(500)
+
 
 if __name__ == "__main__":
     app.run()
