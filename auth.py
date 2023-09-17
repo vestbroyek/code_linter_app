@@ -1,4 +1,5 @@
 from config import ALGORITHMS, API_AUDIENCE, AUTH0_DOMAIN
+from errors import unauthorised, forbidden
 from flask import request, _request_ctx_stack, abort
 from functools import wraps
 from jose import jwt
@@ -146,7 +147,6 @@ def requires_permissions(permission=""):
         @wraps(f)
         def wrapper(*args, **kwargs):
             try:
-                print(request.headers)
                 token = get_token_auth_header()
             except Exception as e:
                 print(sys.exc_info())
