@@ -19,13 +19,13 @@ app.config.from_mapping(
     SQLALCHEMY_DATABASE_URI=database_uri,
     FLASK_ENV="development",
     DEBUG=True,
-    SECRET_KEY=env.get("APP_SECRET_KEY")
+    SECRET_KEY=env.get("APP_SECRET_KEY"),
 )
 db.init_app(app)
 
 CORS(app)
 
-# Auth0 set up 
+# Auth0 set up
 oauth = OAuth(app)
 oauth.register(
     "auth0",
@@ -34,16 +34,18 @@ oauth.register(
     client_kwargs={
         "scope": "mcb.westbroek@gmail.com",
     },
-    server_metadata_url=f'https://{env.get("AUTH0_DOMAIN")}/.well-known/openid-configuration'
+    server_metadata_url=f'https://{env.get("AUTH0_DOMAIN")}/.well-known/openid-configuration',
 )
+
 
 # Misc - date format
 def format_date(value):
-    date_created = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%f')
-    return date_created.strftime('%A, %d %B %Y')
+    date_created = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
+    return date_created.strftime("%A, %d %B %Y")
+
 
 # Add the custom filter to Jinja2 environment
-app.jinja_env.filters['format_date'] = format_date
+app.jinja_env.filters["format_date"] = format_date
 
 # Auth0 Config
 AUTH0_DOMAIN = "dev-alz530yb27kb08mr.us.auth0.com"

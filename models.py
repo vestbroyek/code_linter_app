@@ -1,5 +1,4 @@
 from config import db
-import json 
 
 class Project(db.Model):
     __tablename__ = "projects"
@@ -20,7 +19,7 @@ class Project(db.Model):
     def insert(self):
         db.session.add(self)
         db.session.commit()
-    
+
     def update(self):
         db.session.commit()
 
@@ -30,8 +29,9 @@ class Project(db.Model):
             "name": self.name,
             "image_link": self.image_link,
             "date_created": self.date_created.isoformat(),
-            "snippets": [snippet.long() for snippet in self.snippets]
+            "snippets": [snippet.long() for snippet in self.snippets],
         }
+
 
 class Snippet(db.Model):
     __tablename__ = "snippets"
@@ -48,7 +48,7 @@ class Snippet(db.Model):
     def insert(self):
         db.session.add(self)
         db.session.commit()
-    
+
     def update(self):
         db.session.commit()
 
@@ -57,5 +57,5 @@ class Snippet(db.Model):
             "id": self.id,
             "date_created": self.date_created.isoformat(),
             "project_id": self.project_id,
-            "code": self.code
+            "code": self.code,
         }

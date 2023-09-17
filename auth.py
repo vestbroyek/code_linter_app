@@ -22,6 +22,7 @@ class AuthError(Exception):
 def get_token_auth_header():
     """Obtains the Access Token from the Authorization Header"""
     auth = request.headers.get("Authorization", None)
+    print("URL", request.args.get("access_token"))
     if not auth:
         raise AuthError(
             {
@@ -36,7 +37,7 @@ def get_token_auth_header():
         raise AuthError(
             {
                 "code": "invalid_header",
-                "description": 'Authorization header must start with Bearer.',
+                "description": "Authorization header must start with Bearer.",
             },
             401,
         )
@@ -71,10 +72,7 @@ def check_permissions(permission, payload):
 
     if permission not in payload["permissions"]:
         raise AuthError(
-            {
-                "code": "unauthorized",
-                "description": "Permission not found."
-                }, 403
+            {"code": "unauthorized", "description": "Permission not found."}, 403
         )
     return True
 
@@ -86,10 +84,7 @@ def verify_decode_jwt(token):
     rsa_key = {}
     if "kid" not in unverified_header:
         raise AuthError(
-            {
-                "code": "invalid_header",
-                "description": "Authorization malformed."
-            }, 401
+            {"code": "invalid_header", "description": "Authorization malformed."}, 401
         )
 
     for key in jwks["keys"]:
@@ -143,11 +138,13 @@ def verify_decode_jwt(token):
     )
 
 def requires_permissions(permission=""):
+    print("Evaluating permission ", permission)
     def requires_auth(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
             try:
                 token = get_token_auth_header()
+                print("Token: ", token)
             except Exception as e:
                 print(sys.exc_info())
                 abort(401)

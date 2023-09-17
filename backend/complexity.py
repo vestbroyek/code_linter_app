@@ -2,8 +2,8 @@ import json
 from radon.complexity import cc_visit, cc_rank
 from radon.metrics import h_visit, h_visit_ast, mi_visit, mi_rank
 
-def calculate_metrics(code_snippet: str) -> dict:
 
+def calculate_metrics(code_snippet: str) -> dict:
     # Calculate Cyclomatic Complexity
     cc_results = cc_visit(code_snippet)
 
