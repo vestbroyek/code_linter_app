@@ -13,7 +13,6 @@ from flask import abort, jsonify, render_template, request, redirect, url_for
 from flask_migrate import Migrate
 import json
 from models import Project, Snippet
-import sys
 
 migrate = Migrate(app, db)
 
@@ -52,6 +51,7 @@ def get_project(project_id):
 def post_project(*args):
     # Get form data
     data = request.json
+    app.logger.debug(data)
     try:
         name, image_link, date_created = (
             data["name"],
@@ -60,7 +60,7 @@ def post_project(*args):
         )
 
     except Exception as e:
-        print(e)
+        app.logger.error(e)
         abort(400)
 
     try:
@@ -70,8 +70,7 @@ def post_project(*args):
         new_project.insert()
 
     except Exception as e:
-        print(e)
-        print(sys.exc_info())
+        app.logger.error(e)
         abort(500)
 
     return jsonify({"success": True}), 200
@@ -87,7 +86,7 @@ def post_snippet(project_id):
         code, date_created = data["code"], data["date_created"]
 
     except Exception as e:
-        print(e)
+        app.logger.error(e)
         abort(400)
 
     try:
@@ -97,8 +96,7 @@ def post_snippet(project_id):
         new_snippet.insert()
 
     except Exception as e:
-        print(e)
-        print(sys.exc_info())
+        app.logger.error(e)
         abort(500)
 
     return jsonify({"success": True}), 200
