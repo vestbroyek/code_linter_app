@@ -17,18 +17,20 @@ import sys
 
 migrate = Migrate(app, db)
 
+
 @app.route("/")
 def index():
     return render_template("index.html")
 
+
 @app.route("/projects")
-@requires_permissions("get:projects")
 def get_projects():
     projects = Project.query.all()
 
     formatted_projects = [project.long() for project in projects]
 
     return render_template("projects.html", projects=formatted_projects)
+
 
 @app.route("/projects/<int:project_id>")
 @requires_permissions("get:projects")
@@ -44,9 +46,10 @@ def get_project(project_id):
         snippets=[snippet.long() for snippet in project.snippets],
     )
 
+
 @app.route("/projects", methods=["POST"])
 @requires_permissions("post:projects")
-def post_project():
+def post_project(*args):
     # Get form data
     data = request.json
     try:
@@ -147,30 +150,6 @@ def patch_project(project_id):
         abort(422)
 
 
-@app.route("/projects/<int:snippet_id>", methods=["PATCH"])
-@requires_permissions("patch:snippets")
-def patch_snippet(snippet_id):
-    # Try getting snippet
-    snippet = Snippet.query.filter(Snippet.id == snippet_id).one_or_none()
-
-    if not snippet:
-        abort(404)
-
-    data = request.get_json()
-
-    try:
-        code = data["code"]
-        snippet.code = code
-    except Exception as e:
-        abort(400)
-
-    try:
-        snippet.insert()
-        return jsonify({"success": True, "snippet": snippet.long()}), 200
-    except Exception as e:
-        abort(422)
-
-
 @app.route("/projects/<int:project_id>", methods=["DELETE"])
 @requires_permissions("delete:projects")
 def delete_project(project_id):
@@ -182,12 +161,12 @@ def delete_project(project_id):
 
     try:
         project.delete()
-        return jsonify({"success": True, "snippet_id": project.id}), 200
+        return jsonify({"success": True, "project_id": project.id}), 200
     except:
         abort(500)
 
 
-@app.route("/projects/<int:snippet_id>", methods=["DELETE"])
+@app.route("/snippets/<int:snippet_id>", methods=["DELETE"])
 @requires_permissions("delete:snippets")
 def delete_snippet(snippet_id):
     # Try finding snippet
@@ -198,7 +177,7 @@ def delete_snippet(snippet_id):
 
     try:
         snippet.delete()
-        return redirect(url_for("get_projects"), 302)
+        return jsonify({"success": True, "snippet_id": snippet.id}), 200
     except:
         abort(500)
 
