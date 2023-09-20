@@ -367,11 +367,9 @@
                 }
 
             if (event.target.classList.contains('delete-project-button') || event.target.parentElement.classList.contains('delete-project-button')) {
-                console.log("Delete button clicked.")
-                const deleteProjectButton = document.querySelectorAll(".delete-project-button");
-                // logic here
-                deleteProjectButton.addEventListener("click", async () => {
-                    const projectId = button.getAttribute("data-project-id");
+                event.target.addEventListener("click", async () => {
+                    const href = document.querySelector(".project-link").getAttribute("href");
+                    const projectId = href.split("/").pop();
                     const jwtToken = extractTokenFromURL();
 
                     if (jwtToken) {
@@ -399,15 +397,109 @@
             }
 
             if (event.target.classList.contains('analyze-button') || event.target.parentElement.classList.contains('analyze-button')) {
-                    console.log("Analyse button clicked.")
-                }
+                const snippetId = event.target.getAttribute("data-snippet-id");
+                const jwtToken = extractTokenFromURL();
+                event.target.addEventListener("click", async () => {
+
+                    if (jwtToken) {
+                        const headers = {
+                            'Authorization': `Bearer ${jwtToken}`
+                        };
+
+                        try {
+                            const response = await fetch(`/analyse/${snippetId}`, {
+                                method: 'GET',
+                                headers,
+                            });
+
+                            if (response.ok) {
+                                console.log(response.body);
+                                // Handle the response here (e.g., display analysis results)
+                                const analysisResult = await response.json();
+                                const snippetContainer = event.target.closest("li");
+                                const maintainabilityBox = snippetContainer.querySelector(".maintainability-box");
+                                const maintainabilityIndex = analysisResult.results.MaintainabilityIndex;
+                                const maintainabilityIndexBox = maintainabilityBox.querySelector(".maintainability-index");
+                                maintainabilityIndexBox.textContent = maintainabilityIndex.toFixed(2);
+                            } else {
+                                console.error("Error analyzing snippet:", response.status);
+                            }
+                        } catch (error) {
+                            // Handle errors here
+                            console.error("Error analyzing snippet:", error);
+                        }
+                    } else {
+                        // Handle the case when the token is not found in the URL
+                        console.error("JWT token not found in the URL.");
+                    }
+                });
+            }
 
             if (event.target.classList.contains('delete-button') || event.target.parentElement.classList.contains('delete-button')) {
-                    console.log("Delete button clicked.")
+                const snippetId = event.target.getAttribute("data-snippet-id");
+                const jwtToken = extractTokenFromURL();
+                event.target.addEventListener("click", async () => {
+
+                    if (jwtToken) {
+                        const headers = {
+                            'Authorization': `Bearer ${jwtToken}`
+                        };
+
+                        try {
+                            const response = await fetch(`/snippets/${snippetId}`, {
+                                method: 'DELETE',
+                                headers,
+                            });
+
+                            if (response.ok) {
+                                // Remove the deleted snippet from the UI
+                                const snippetContainer = event.target.closest("li");
+                                snippetContainer.remove();
+                            } else {
+                                console.error("Error deleting snippet:", response.status);
+                            }
+                        } catch (error) {
+                            // Handle errors here
+                            console.error("Error deleting snippet:", error);
+                        }
+                    } else {
+                        // Handle the case when the token is not found in the URL
+                        console.error("JWT token not found in the URL.");
+                    }
+                });
                 }
 
+                if (event.target.classList.contains('edit-button') || event.target.parentElement.classList.contains('edit-button')) {
+                const snippetId = event.target.getAttribute("data-snippet-id");
+                const jwtToken = extractTokenFromURL();
+                const editForm = event.target.nextElementSibling;
+
+                event.target.addEventListener("click", async () => {
+
+                    if (jwtToken) {
+
+                        // Assuming you have a reference to the snippet element
+                        const snippetElement = document.querySelector(".snippet-content");
+
+                        // Assuming the <code> element has a class name
+                        const codeElement = snippetElement.querySelector(".language-python");
+
+                        // Access the text content within the <code> element
+                        const existingContent = codeElement.textContent;
+                        const editCodeText = editForm.querySelector("#editedCodeText");
+                        editCodeText.value = existingContent;
+                        editForm.classList.remove("hidden");
+
+                        const headers = {
+                            'Authorization': `Bearer ${jwtToken}`
+                        };
+                    } else {
+                        // Handle the case when the token is not found in the URL
+                        console.error("JWT token not found in the URL.");
+                    }
+                });
+                }
             });
-    
     </script>
     <script src="{{ url_for('static', filename='prism.js') }}"></script>
     <script src="{{ url_for('static', filename='prism-python.min.js') }}"></script>
