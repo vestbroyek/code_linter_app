@@ -22,7 +22,6 @@ class AuthError(Exception):
 def get_token_auth_header():
     """Obtains the Access Token from the Authorization Header"""
     auth = request.headers.get("Authorization", None)
-    print("URL", request.args.get("access_token"))
     if not auth:
         raise AuthError(
             {
@@ -138,13 +137,11 @@ def verify_decode_jwt(token):
     )
 
 def requires_permissions(permission=""):
-    print("Evaluating permission ", permission)
     def requires_auth(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
             try:
                 token = get_token_auth_header()
-                print("Token: ", token)
             except Exception as e:
                 print(sys.exc_info())
                 abort(401)
@@ -158,7 +155,7 @@ def requires_permissions(permission=""):
             except Exception as e:
                 abort(403)
 
-            return f(payload, *args, **kwargs)
+            return f(*args, **kwargs)
 
         return wrapper
 
