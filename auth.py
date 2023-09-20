@@ -136,6 +136,7 @@ def verify_decode_jwt(token):
         400,
     )
 
+
 def requires_permissions(permission=""):
     def requires_auth(f):
         @wraps(f)
