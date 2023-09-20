@@ -47,8 +47,6 @@
             <button type="submit">Create Project</button>
         </form>
 
-        <button id="addCodeButton" class="hidden">Add Code</button>
-
         <!-- Add snippets form-->
         <div id="addCodeForm" class="hidden">
             <h2>Add Code:</h2>
@@ -61,10 +59,10 @@
             </form>
         </div>
 
+        <div id="projectDetailsContainer">
+            <!-- Add project details -->
+        </div>
 
-        
-        <!-- TODO -->
-        <!-- <button id="logoutButton">Log Out</button> -->
     </div>
     <script>
         // Function to extract the JWT token from the URL
@@ -80,10 +78,6 @@
         const projectLinks = document.querySelectorAll('.project-link');
         projectLinks.forEach((link) => {
             const projectId = link.getAttribute('id').split('_')[1]; // Extract project ID
-            if (accessToken) {
-                const originalHref = link.getAttribute('href');
-                link.setAttribute('href', `${originalHref}#access_token=${accessToken}`);
-            }
         });
 
         // Function to set the JWT token in the Authorization header
@@ -151,6 +145,20 @@
             return new Date(inputDate).toLocaleDateString(undefined, options);
         }
 
+        // Function to run scripts
+        function executeScripts(container) {
+            // Find all script tags within the container
+            const scripts = container.querySelectorAll('script');
+
+            // Iterate through each script and execute it
+            scripts.forEach((script) => {
+                const newScript = document.createElement('script');
+                newScript.src = script.src;
+                newScript.async = false; // Ensure scripts are executed in order
+                container.appendChild(newScript);
+            });
+        }
+
         // Event listener for the new project form submission
         const newProjectForm = document.getElementById("newProjectForm");
         newProjectForm.addEventListener("submit", async (e) => {
@@ -179,8 +187,6 @@
                     'Content-Type': 'application/json'
                 };
 
-                console.log(headers)
-                console.log(JSON.stringify(projectData))
                 try {
                     const response = await fetch('/projects', {
                         method: 'POST',
@@ -192,7 +198,6 @@
                         // Clear the form and hide it
                         newProjectForm.reset();
                         fetchProjects();
-                        addCodeButton.classList.add("hidden")
                     }
                     
 
@@ -211,25 +216,44 @@
             const projectLinks = document.querySelectorAll(".project-link");
 
             projectLinks.forEach((projectLink) => {
-                projectLink.addEventListener("click", function (e) {
-                    e.preventDefault(); // Prevent the default link behavior (navigation)
+                projectLink.addEventListener("click", async function (e) {
+                    e.preventDefault();
 
-                    const href = this.getAttribute("href");
-                    window.location.href = href; // Redirect to the project page
+                    const projectId = this.getAttribute("id").split("_")[1];
+                    const jwtToken = extractTokenFromURL();
 
-                    // Show the "Add Code" button when a project link is clicked
-                    addCodeButton.classList.remove("hidden");
+                    if (jwtToken) {
+                        const headers = {
+                            'Authorization': `Bearer ${jwtToken}`,
+                            'Content-Type': 'application/json'
+                        };
+
+                        try {
+                            const response = await fetch(`/projects/${projectId}`, { method: 'GET', headers });
+                            if (response.ok) {
+                                // Get the HTML content from the response
+                                const htmlContent = await response.text();
+
+                                // Find the container element
+                                const projectDetailsContainer = document.getElementById('projectDetailsContainer');
+
+                                // Set the innerHTML of the container to the fetched HTML content
+                                projectDetailsContainer.innerHTML = htmlContent;
+                                executeScripts(projectDetailsContainer);
+                                newProjectForm.classList.add("hidden")
+                            } else {
+                                console.error("Failed to fetch project details:", response.statusText);
+                            }
+                        } catch (error) {
+                            console.error("Error fetching project:", error);
+                        }
+
+                    } else {
+                        console.error("JWT token not found");
+                    }
 
                 });
             });
-        });
-
-        // Event listener to show the "Add Code" form
-        const addCodeButton = document.getElementById("addCodeButton");
-        const addCodeForm = document.getElementById("addCodeForm");
-
-        addCodeButton.addEventListener("click", function () {
-            addCodeForm.classList.remove("hidden");
         });
 
         // Event listener for submitting the "Add Code" form
@@ -279,6 +303,110 @@
 
             addCodeForm.classList.add("hidden");
         });
+
+        // Event listeners for project details container
+        const projectDetailsContainer = document.getElementById('projectDetailsContainer');
+        // Add code 
+        const addCodeButton = document.getElementById("addCodeButton");
+        const addCodeForm = document.getElementById("addCodeForm");
+
+        const deleteProjectButton = document.querySelectorAll(".delete-project-button");
+        
+        // Attach a click event listener to the parent container
+        projectDetailsContainer.addEventListener('click', function(event) {
+            // Check if the clicked element is a button
+            if (event.target.tagName === 'BUTTON' && event.target.id === 'addCodeButton') {
+                    addCodeForm.classList.remove("hidden");
+                }
+
+            if (event.target.tagName === 'BUTTON' && event.target.id === 'updateProjectButton') {
+                    // updateProjectForm.classList.remove("hidden");
+                    const updateProjectForm = document.getElementById("updateProjectForm");
+                    updateProjectForm.classList.remove("hidden");
+                    const projectFormData = document.getElementById("projectForm")
+                    // Add event listener for updating project data
+                    updateProjectForm.addEventListener("submit", async (e) => {
+                        e.preventDefault();
+
+                        // Extract form data
+                        const formData = new FormData(projectFormData);
+
+                        // Extract project ID
+                        const currentURL = window.location.href;
+                        const href = document.querySelector(".project-link").getAttribute("href");
+                        const projectId = href.split("/").pop();
+
+                        // Send a POST request to create the new code snippet
+                        const jwtToken = extractTokenFromURL(); // You can define the extractTokenFromURL function
+                        if (jwtToken) {
+                            const headers = {
+                                'Authorization': `Bearer ${jwtToken}`,
+                                'Content-Type': 'application/json'
+                            };
+
+                            try {
+                                const response = await fetch(`/projects/${projectId}`, {
+                                    method: 'PATCH',
+                                    headers,
+                                    body: JSON.stringify(Object.fromEntries(formData)),
+                                });
+                                // Handle the response here (e.g., refresh the snippets list)
+                                // You can add code to refresh the snippets list when the snippet is added.
+                            } catch (error) {
+                                // Handle errors here
+                                console.error("Error adding code snippet:", error);
+                            }
+                        } else {
+                            // Handle the case when the token is not found in the URL
+                            console.error("JWT token not found in the URL.");
+                        }
+
+                        addCodeForm.classList.add("hidden");
+
+                    });
+                }
+
+            if (event.target.classList.contains('delete-project-button') || event.target.parentElement.classList.contains('delete-project-button')) {
+                console.log("Delete button clicked.")
+                const deleteProjectButton = document.querySelectorAll(".delete-project-button");
+                // logic here
+                deleteProjectButton.addEventListener("click", async () => {
+                    const projectId = button.getAttribute("data-project-id");
+                    const jwtToken = extractTokenFromURL();
+
+                    if (jwtToken) {
+                        const headers = {
+                            'Authorization': `Bearer ${jwtToken}`,
+                            'Content-Type': 'application/json'
+                        };
+
+                        try {
+                            const response = await fetch(`/projects/${projectId}`, {
+                                method: 'DELETE',
+                                headers,
+                            });
+
+                        } catch (error) {
+                            // Handle errors here
+                            console.error("Error deleting project:", error);
+                        }
+                    } else {
+                        // Handle the case when the token is not found in the URL
+                        console.error("JWT token not found in the URL.");
+                    }
+
+                });
+            }
+
+            if (event.target.classList.contains('analyze-button') || event.target.parentElement.classList.contains('analyze-button')) {
+                    console.log("Analyse button clicked.")
+                }
+
+            if (event.target.classList.contains('delete-button') || event.target.parentElement.classList.contains('delete-button')) {
+                    console.log("Delete button clicked.")
+                }
+
+            });
     
     </script>
     <script src="{{ url_for('static', filename='prism.js') }}"></script>

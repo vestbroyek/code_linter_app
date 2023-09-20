@@ -58,9 +58,9 @@
     <script>
     // Function to extract the JWT token from the URL
     function extractTokenFromURL() {
-    const hash = window.location.hash.substring(1); // Remove the '#' character
-    const params = new URLSearchParams(hash);
-    return params.get("access_token");
+        const hash = window.location.hash.substring(1); // Remove the '#' character
+        const params = new URLSearchParams(hash);
+        return params.get("access_token");
     }
     // Function to show the "Add Code" form
     const addCodeButton = document.getElementById("addCodeButton");
