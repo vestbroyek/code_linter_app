@@ -7,7 +7,7 @@ class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     image_link = db.Column(db.String)
-    date_created = db.db.Column(db.DateTime)
+    date_created = db.Column(db.DateTime)
     snippets = db.relationship("Snippet", cascade="all, delete", backref="project")
 
     def __repr__(self):
